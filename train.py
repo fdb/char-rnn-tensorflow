@@ -104,9 +104,6 @@ def train(args):
                 os.path.join(args.log_dir, time.strftime("%Y-%m-%d-%H-%M-%S")))
         writer.add_graph(sess.graph)
 
-        # chart initialization for Paperspace
-        print('{"chart": "train_loss"}')
-
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables())
         # restore model
@@ -130,11 +127,12 @@ def train(args):
                 writer.add_summary(summ, e * data_loader.num_batches + b)
 
                 end = time.time()
-                print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}"
-                      .format(e * data_loader.num_batches + b,
-                              args.num_epochs * data_loader.num_batches,
-                              e, train_loss, end - start))
-                print(json.dumps(dict(chart="train_loss", y='{:3f}'.format(train_loss))))
+                i = e * data_loader.num_batches + b
+                if i % 100 == 0:
+                    print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}"
+                          .format(e * data_loader.num_batches + b,
+                                  args.num_epochs * data_loader.num_batches,
+                                  e, train_loss, end - start))
                 if (e * data_loader.num_batches + b) % args.save_every == 0\
                         or (e == args.num_epochs-1 and
                             b == data_loader.num_batches-1):
